@@ -12,4 +12,5 @@ public interface IMixinChatHud {
     }
     List<ChatHudLine> getVisibleMessages();
     int getMessageIndex(double x, double y);
+    void updateFromBuffer();
 }

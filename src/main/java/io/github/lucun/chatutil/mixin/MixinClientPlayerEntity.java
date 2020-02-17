@@ -7,8 +7,10 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.packet.ChatMessageC2SPacket;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -34,7 +36,7 @@ public abstract class MixinClientPlayerEntity {
             try {
                 playerEntity.networkHandler.getCommandDispatcher().execute(msg.substring(1), new ClientOnlyCommandSource(playerEntity));
             } catch (CommandSyntaxException e) {
-                playerEntity.addChatMessage(Texts.toText(e.getRawMessage()), false);
+                playerEntity.addChatMessage(Texts.toText(e.getRawMessage()).formatted(Formatting.RED), false);
             }
         } else {
             clientPlayNetworkHandler.sendPacket(packet);

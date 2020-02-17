@@ -97,7 +97,7 @@ public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen
         if (this.chatField.getSelectedText().isEmpty()) {
             if (keyCode == 67 && Screen.hasControlDown() && Screen.hasShiftDown() && !Screen.hasAltDown() && !selectedLines.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                selectedLines.forEach(line -> sb.append(line.getText().getString().replaceAll("§.", "")).append("\n"));
+                selectedLines.forEach(line -> sb.append(line.getText().asFormattedString()).append("\n"));
                 MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
                 this.clearSelection();
             }
