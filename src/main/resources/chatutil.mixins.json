@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "io.github.lucun.chatutil.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinChatHud",
+    "MixinChatScreen",
+    "MixinClientPlayNetworkHandler",
+    "MixinClientPlayerEntity"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

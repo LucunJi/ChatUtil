@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "chatutil",
+  "version": "0.1",
+
+  "name": "ChatUtil",
+  "description": "",
+  "authors": [
+    ""
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "io.github.lucun.chatutil.Main"
+    ]
+  },
+  "mixins": [
+    "chatutil.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.7.2",
+    "fabric": "*",
+    "minecraft": "1.15.x"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
