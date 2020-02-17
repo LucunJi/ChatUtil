@@ -51,7 +51,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
 
     @Shadow private int scrolledLines;
 
-    @Shadow protected static double getMessageOpacityMultiplier(int age){return 0.0D;}
+    @Shadow private static double getMessageOpacityMultiplier(int age){return 0.0D;}
 
     @Shadow public abstract void render(int ticks);
 
@@ -74,14 +74,6 @@ public abstract class MixinChatHud implements IMixinChatHud {
         if (messageId != 0) {
             messageBuffer.removeIf(line -> line.getId() == messageId);
         }
-
-        int i = MathHelper.floor((double)this.getWidth() / this.getChatScale());
-        List<Text> list = Texts.wrapLines(message, i, this.client.textRenderer, false, false);
-
-//        for (Text text : list) {
-//            messageBuffer.add(0, new ChatHudLine(timestamp, message, messageId));
-//            if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
-//        }
     }
 
     @Redirect(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At(
@@ -91,7 +83,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
     ))
     private void onAddVisibleMessage(List<ChatHudLine> list, int index, Object element) {
         ChatHudLine line = (ChatHudLine) element;
-        if (!Settings.getPattern().matcher(line.getText().asFormattedString()).matches()) {
+        if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).matches()) {
             list.add(0, line);
         }
         messageBuffer.add(0, line);
@@ -104,7 +96,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
         Iterator<ChatHudLine> lineIterator = messageBuffer.iterator();
         for (int i = 0; i < Settings.BUFFER_SIZE && lineIterator.hasNext();) {
             ChatHudLine line = lineIterator.next();
-            if (!Settings.getPattern().matcher(line.getText().asFormattedString()).matches()) {
+            if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).matches()) {
                 visibleMessages.add(line);
                 ++i;
             }

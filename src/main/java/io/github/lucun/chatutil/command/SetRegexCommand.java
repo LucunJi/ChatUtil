@@ -4,7 +4,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import io.github.lucun.chatutil.mixininterface.IMixinChatHud;
 import io.github.lucun.chatutil.setting.Settings;
 import net.minecraft.client.MinecraftClient;
@@ -42,29 +41,38 @@ public class SetRegexCommand implements IClientCommand {
 
     private static int setBufferSize(CommandContext<ServerCommandSource> context) {
         Settings.BUFFER_SIZE = IntegerArgumentType.getInteger(context, "buffer");
-        MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
-                String.format("Buffer size of chat hud is set to %d.", Settings.BUFFER_SIZE)), false);
+        if (MinecraftClient.getInstance().player != null) {
+            MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
+                    String.format("Buffer size of chat hud is set to %d.", Settings.BUFFER_SIZE)), false);
+        }
         ((IMixinChatHud) MinecraftClient.getInstance().inGameHud.getChatHud()).updateFromBuffer();
+        Settings.save();
         return 1;
     }
 
     private static int applyRegex(CommandContext<ServerCommandSource> context) {
         String name = StringArgumentType.getString(context, "name");
-        if (!name.matches("^[a-zA-Z0-9_]+$")) {
+        if (!name.matches("^\\w+$")) {
+            assert MinecraftClient.getInstance().player != null;
             MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
                     String.format("Invalid name: \"%s\"\nName should only contain alphabets, numbers and underlines.", name)).formatted(Formatting.RED), false);
             return -1;
         }
         Pattern pattern = Settings.PATTERN_MAP.get(name);
         if (pattern == null) {
-            MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
-                    String.format("Pattern \"%s\" no found, check your pattern name.", name)).formatted(Formatting.RED), false);
+            if (MinecraftClient.getInstance().player != null) {
+                MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
+                        String.format("Pattern \"%s\" no found, check your pattern name.", name)).formatted(Formatting.RED), false);
+            }
             return -1;
         }
         Settings.CURRENT_PATTERN = name;
-        MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
-                String.format("Current filter is set to %s.", name)), false);
+        if (MinecraftClient.getInstance().player != null) {
+            MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
+                    String.format("Current filter is set to %s.", name)), false);
+        }
         ((IMixinChatHud) MinecraftClient.getInstance().inGameHud.getChatHud()).updateFromBuffer();
+        Settings.save();
         return 1;
     }
 
@@ -78,7 +86,7 @@ public class SetRegexCommand implements IClientCommand {
             return -1;
         }
         String name = StringArgumentType.getString(context, "name");
-        if (!name.matches("^[a-zA-Z0-9_]+$")) {
+        if (!name.matches("^\\w+$")) {
             MinecraftClient.getInstance().player.addChatMessage(new LiteralText(
                     String.format("Invalid name: \"%s\"\nName should only contain alphabets, numbers and underlines.", name)).formatted(Formatting.RED), false);
             return -1;
@@ -88,6 +96,7 @@ public class SetRegexCommand implements IClientCommand {
                 String.format("Regex pattern \"%s\" is set as %s.", pattern.pattern(), name)), false);
         if (name.equals(Settings.CURRENT_PATTERN))
             ((IMixinChatHud) MinecraftClient.getInstance().inGameHud.getChatHud()).updateFromBuffer();
+        Settings.save();
         return 1;
     }
 }

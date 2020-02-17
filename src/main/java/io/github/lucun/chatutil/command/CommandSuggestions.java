@@ -25,8 +25,8 @@ public class CommandSuggestions {
         return (SuggestionProvider<ServerCommandSource>) provider1;
     }
 
-    public static void register() {
-        providerMap.forEach((name, provider) ->
-                SuggestionProviders.register(new Identifier("chatutil"+name), (SuggestionProviders.LocalProvider) provider));
-    }
+//    public static void register() {
+//        providerMap.forEach((name, provider) ->
+//                SuggestionProviders.register(new Identifier("chatutil"+name), (SuggestionProviders.LocalProvider) provider));
+//    }
 }

@@ -78,17 +78,16 @@ public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen
         return false;
     }
 
-    @Inject(method = "mouseScrolled", at = @At(
-            value = "RETURN",
-            ordinal = 1
-    ))
-    private void onMouseScrolled(double d, double e, double amount, CallbackInfoReturnable<Boolean> cir) {
-        if (amount > 1.0) {
-
-        } else if (amount < 1.0) {
-
-        }
-    }
+//TODO
+//    @Inject(method = "mouseScrolled", at = @At(
+//            value = "RETURN",
+//            ordinal = 1
+//    ))
+//    private void onMouseScrolled(double d, double e, double amount, CallbackInfoReturnable<Boolean> cir) {
+//        if (amount > 1.0) {
+//        } else if (amount < 1.0) {
+//        }
+//    }
 
     @Inject(method = "keyPressed", at = @At(
             value = "HEAD"
@@ -97,7 +96,7 @@ public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen
         if (this.chatField.getSelectedText().isEmpty()) {
             if (keyCode == 67 && Screen.hasControlDown() && Screen.hasShiftDown() && !Screen.hasAltDown() && !selectedLines.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
-                selectedLines.forEach(line -> sb.append(line.getText().asFormattedString()).append("\n"));
+                selectedLines.forEach(line -> sb.append(line.getText().asFormattedString().replaceAll("§\\w", "")).append("\n"));
                 MinecraftClient.getInstance().keyboard.setClipboard(sb.toString());
                 this.clearSelection();
             }
