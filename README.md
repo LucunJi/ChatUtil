@@ -4,6 +4,8 @@
 ChatUtil is capable of copying and pasting texts in your chat
  box.
  
+Now downloads are available in curseforge: https://www.curseforge.com/minecraft/mc-mods/chatutil
+ 
 Hold *Shift* and *click/drag*, you can select multiple lines.
 
 Then press *Ctrl+Shift+C* to put these lines into your
