@@ -24,3 +24,5 @@ Feel free to use this mod anywhere, cuz it's released under license [CC0-1.0](./
 Oh, is fine if you did't see some of the aforementioned function or there might be some bugs.
 
 This mod is still under development. Please be patient and fell free to report issues ;)
+
+Thanks earthcomputer for codes of client side commands
