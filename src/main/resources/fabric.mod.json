@@ -4,13 +4,13 @@
   "version": "0.1",
 
   "name": "ChatUtil",
-  "description": "",
+  "description": "Type /chatutil or hold Shift and drag on your chat hud.",
   "authors": [
-    ""
+    "LucunJi"
   ],
   "contact": {
     "homepage": "",
-    "sources": ""
+    "sources": "https://github.com/LucunJi/ChatUtil"
   },
 
   "license": "CC0-1.0",
