@@ -1,19 +1,12 @@
 package io.github.lucun.chatutil.setting;
 
 import com.google.common.collect.Maps;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.internal.bind.JsonTreeWriter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import io.github.lucun.chatutil.Main;
 
 import java.io.*;
-import java.nio.file.FileSystem;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -21,13 +14,13 @@ public class Settings {
     public static int BUFFER_SIZE = 100;
     public static Map <String, Pattern> PATTERN_MAP = Maps.newHashMap();
     public static String CURRENT_PATTERN = "allow_all";
-    private static Pattern ALLOW_ALL = Pattern.compile("");
+    private static Pattern ALLOW_ALL = Pattern.compile("^$");
 
     static {
         PATTERN_MAP.put("allow_all", ALLOW_ALL);
-        PATTERN_MAP.put("block_all", Pattern.compile(".*"));
-        PATTERN_MAP.put("players_only", Pattern.compile("[^(<.*>)].*"));
-        PATTERN_MAP.put("players_blocked", Pattern.compile("<.*>.*"));
+        PATTERN_MAP.put("block_all", Pattern.compile(""));
+        PATTERN_MAP.put("players_only", Pattern.compile("^[^(<\\w+>)].*$"));
+        PATTERN_MAP.put("block_players", Pattern.compile("<\\w+>"));
     }
 
     public static Pattern getPattern() {
