@@ -19,23 +19,24 @@ import java.util.regex.PatternSyntaxException;
 public class SetRegexCommand implements IClientCommand {
 
     public void register(CommandDispatcher<? super ServerCommandSource> dispatcher) {
-        ((CommandDispatcher<ServerCommandSource>) dispatcher).register(CommandManager.literal("chatutil")
-                .then(CommandManager.literal("filter")
-                        .then(CommandManager.literal("set")
-                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions.REGEX_NAME)
-                        .then(CommandManager.argument("regex", StringArgumentType.greedyString())
-                        .executes(SetRegexCommand::setRegex)
-                        )))
-                        .then(CommandManager.literal("use")
-                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions.REGEX_NAME)
-                        .executes(SetRegexCommand::applyRegex)))
+        ((CommandDispatcher<ServerCommandSource>) dispatcher).register(
+                CommandManager.literal("chatutil")
+                        .then(CommandManager.literal("filter")
+                                .then(CommandManager.literal("set")
+                                .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions.REGEX_NAME)
+                                .then(CommandManager.argument("regex", StringArgumentType.greedyString())
+                                .executes(SetRegexCommand::setRegex)
+                                )))
+                                .then(CommandManager.literal("use")
+                                .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions.REGEX_NAME)
+                                .executes(SetRegexCommand::applyRegex)))
 
-                )
-                .then(CommandManager.literal("buffer")
-                        .then(CommandManager.argument("buffer", IntegerArgumentType.integer(20, 1024)).suggests((context, builder) ->
-                                CommandSource.suggestMatching(new String[]{"100"}, builder))
-                        .executes(SetRegexCommand::setBufferSize))
-                )
+                        )
+                        .then(CommandManager.literal("buffer")
+                                .then(CommandManager.argument("buffer", IntegerArgumentType.integer(20, 1024)).suggests((context, builder) ->
+                                        CommandSource.suggestMatching(new String[]{"100"}, builder))
+                                .executes(SetRegexCommand::setBufferSize))
+                        )
         );
     }
 

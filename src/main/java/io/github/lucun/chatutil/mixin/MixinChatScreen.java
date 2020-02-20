@@ -30,6 +30,7 @@ public abstract class MixinChatScreen extends Screen implements IMixinChatScreen
     @Unique private Set<ChatHudLine> selectionSet = new ReferenceLinkedOpenHashSet<>();
     @Unique private static final ChatHud CHAT_HUD = MinecraftClient.getInstance().inGameHud.getChatHud();
     @Unique private int startIndex = -1;
+    @Unique private boolean mouseDown = false;
 
     @Shadow protected TextFieldWidget chatField;
 
@@ -37,13 +38,6 @@ public abstract class MixinChatScreen extends Screen implements IMixinChatScreen
 
     protected MixinChatScreen(Text title) {
         super(title);
-    }
-
-    @Inject(method = "<init>", at = @At(
-            value = "RETURN"
-    ))
-    private void onNewInstance(String originalChatText, CallbackInfo ci) {
-        this.chatField.setMaxLength(1024);
     }
 
     @Inject(method = "mouseClicked", at = @At(
@@ -59,6 +53,7 @@ public abstract class MixinChatScreen extends Screen implements IMixinChatScreen
                         ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(index);
                         this.addLine(line);
                         this.startIndex = index;
+                        this.mouseDown = true;
                     }
                 }
             } else {
@@ -90,24 +85,31 @@ public abstract class MixinChatScreen extends Screen implements IMixinChatScreen
         return false;
     }
 
-//TODO test
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        this.mouseDown = false;
+        return false;
+    }
+
     @Inject(method = "mouseScrolled", at = @At(
             value = "RETURN"
     ))
     private void onMouseScrolled(double d, double e, double amount, CallbackInfoReturnable<Boolean> cir) {
-        int index = ((IMixinChatHud) CHAT_HUD).getMessageIndex(d, e);
-        if (index != -1) {
-            if (startIndex == -1) startIndex = index;
-            this.clearSelection();
-            if (startIndex < index) {
-                for (int i = startIndex; i <= index; ++i) {
-                    ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(i);
-                    this.addLineReverse(line);
-                }
-            } else {
-                for (int i = startIndex; i >= index; --i) {
-                    ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(i);
-                    this.addLine(line);
+        if (Screen.hasShiftDown() && this.mouseDown) {
+            int index = ((IMixinChatHud) CHAT_HUD).getMessageIndex(d, e);
+            if (index != -1) {
+                if (startIndex == -1) startIndex = index;
+                this.clearSelection();
+                if (startIndex < index) {
+                    for (int i = startIndex; i <= index; ++i) {
+                        ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(i);
+                        this.addLineReverse(line);
+                    }
+                } else {
+                    for (int i = startIndex; i >= index; --i) {
+                        ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(i);
+                        this.addLine(line);
+                    }
                 }
             }
         }

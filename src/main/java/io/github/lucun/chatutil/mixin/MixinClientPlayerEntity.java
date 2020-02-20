@@ -1,6 +1,8 @@
 package io.github.lucun.chatutil.mixin;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lucun.chatutil.command.ClientCommands;
 import io.github.lucun.chatutil.command.ClientOnlyCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -31,7 +33,7 @@ public abstract class MixinClientPlayerEntity {
     ))
     private void onSendChatMessage(ClientPlayNetworkHandler clientPlayNetworkHandler, Packet<?> packet) {
         String msg = ((ChatMessageC2SPacket) packet).getChatMessage();
-        if (msg.startsWith("/chatutil ")) {
+        if (ClientCommands.isClientOnlyCommand(msg)) {
             ClientPlayerEntity playerEntity = MinecraftClient.getInstance().player;
             try {
                 playerEntity.networkHandler.getCommandDispatcher().execute(msg.substring(1), new ClientOnlyCommandSource(playerEntity));
