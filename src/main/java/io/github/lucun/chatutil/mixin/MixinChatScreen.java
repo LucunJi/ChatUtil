@@ -4,18 +4,19 @@ import io.github.lucun.chatutil.mixininterface.IMixinChatHud;
 import io.github.lucun.chatutil.mixininterface.IMixinChatScreen;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.LinkedList;
@@ -23,16 +24,21 @@ import java.util.List;
 import java.util.Set;
 
 @Mixin(ChatScreen.class)
-public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen {
+public abstract class MixinChatScreen extends Screen implements IMixinChatScreen {
 
     @Unique private List<ChatHudLine> selectedLines = new LinkedList<>();
     @Unique private Set<ChatHudLine> selectionSet = new ReferenceLinkedOpenHashSet<>();
     @Unique private static final ChatHud CHAT_HUD = MinecraftClient.getInstance().inGameHud.getChatHud();
     @Unique private int startIndex = -1;
+    @Unique private boolean mouseDown = false;
 
     @Shadow protected TextFieldWidget chatField;
 
     @Shadow private CommandSuggestor commandSuggestor;
+
+    protected MixinChatScreen(Text title) {
+        super(title);
+    }
 
     @Inject(method = "mouseClicked", at = @At(
             value = "HEAD"
@@ -47,6 +53,7 @@ public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen
                         ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(index);
                         this.addLine(line);
                         this.startIndex = index;
+                        this.mouseDown = true;
                     }
                 }
             } else {
@@ -78,16 +85,35 @@ public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen
         return false;
     }
 
-//TODO
-//    @Inject(method = "mouseScrolled", at = @At(
-//            value = "RETURN",
-//            ordinal = 1
-//    ))
-//    private void onMouseScrolled(double d, double e, double amount, CallbackInfoReturnable<Boolean> cir) {
-//        if (amount > 1.0) {
-//        } else if (amount < 1.0) {
-//        }
-//    }
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        this.mouseDown = false;
+        return false;
+    }
+
+    @Inject(method = "mouseScrolled", at = @At(
+            value = "RETURN"
+    ))
+    private void onMouseScrolled(double d, double e, double amount, CallbackInfoReturnable<Boolean> cir) {
+        if (Screen.hasShiftDown() && this.mouseDown) {
+            int index = ((IMixinChatHud) CHAT_HUD).getMessageIndex(d, e);
+            if (index != -1) {
+                if (startIndex == -1) startIndex = index;
+                this.clearSelection();
+                if (startIndex < index) {
+                    for (int i = startIndex; i <= index; ++i) {
+                        ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(i);
+                        this.addLineReverse(line);
+                    }
+                } else {
+                    for (int i = startIndex; i >= index; --i) {
+                        ChatHudLine line = ((IMixinChatHud) CHAT_HUD).getVisibleMessages().get(i);
+                        this.addLine(line);
+                    }
+                }
+            }
+        }
+    }
 
     @Inject(method = "keyPressed", at = @At(
             value = "HEAD"
@@ -134,4 +160,3 @@ public abstract class MixinChatScreen implements ParentElement, IMixinChatScreen
         this.selectedLines.clear();
     }
 }
-

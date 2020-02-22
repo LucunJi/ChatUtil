@@ -83,7 +83,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
     ))
     private void onAddVisibleMessage(List<ChatHudLine> list, int index, Object element) {
         ChatHudLine line = (ChatHudLine) element;
-        if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).matches()) {
+        if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).find()) {
             list.add(0, line);
         }
         messageBuffer.add(0, line);
@@ -96,7 +96,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
         Iterator<ChatHudLine> lineIterator = messageBuffer.iterator();
         for (int i = 0; i < Settings.BUFFER_SIZE && lineIterator.hasNext();) {
             ChatHudLine line = lineIterator.next();
-            if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).matches()) {
+            if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).find()) {
                 visibleMessages.add(line);
                 ++i;
             }
