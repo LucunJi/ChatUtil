@@ -19,7 +19,7 @@ public class Settings {
     static {
         PATTERN_MAP.put("allow_all", ALLOW_ALL);
         PATTERN_MAP.put("block_all", Pattern.compile(""));
-        PATTERN_MAP.put("players_only", Pattern.compile("^[^(<\\w+>)].*$"));
+        PATTERN_MAP.put("players_only", Pattern.compile("(^[^<])"));
         PATTERN_MAP.put("block_players", Pattern.compile("<\\w+>"));
     }
 

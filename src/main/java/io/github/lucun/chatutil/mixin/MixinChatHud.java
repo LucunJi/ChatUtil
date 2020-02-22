@@ -2,10 +2,13 @@ package io.github.lucun.chatutil.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.lucun.chatutil.mixininterface.IMixinChatHud;
+import io.github.lucun.chatutil.mixininterface.IMixinChatScreen;
 import io.github.lucun.chatutil.setting.Settings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
+import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.options.ChatVisibility;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
@@ -43,7 +46,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
 
     @Shadow private int scrolledLines;
 
-    @Shadow protected static double method_19348(int i){return 0.0D;}
+    @Shadow private static double method_19348(int i){return 0.0D;}
 
     @Redirect(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At(
             value = "INVOKE", target = "Ljava/util/List;size()I", ordinal = 0))
@@ -104,6 +107,8 @@ public abstract class MixinChatHud implements IMixinChatHud {
             value = "HEAD"
     ))
     private void onRender(int ticks, CallbackInfo ci) {
+        Screen screen = MinecraftClient.getInstance().currentScreen;
+        if (!(screen instanceof ChatScreen)) return;
         if (this.client.options.chatVisibility != ChatVisibility.HIDDEN) {
             int i = this.getVisibleLineCount();
             int j = this.visibleMessages.size();
@@ -126,7 +131,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
                 int p;
                 for(int m = 0; m + this.scrolledLines < this.visibleMessages.size() && m < i; ++m) {
                     ChatHudLine chatHudLine = this.visibleMessages.get(m + this.scrolledLines);
-                    if (chatHudLine != null) {
+                    if (chatHudLine != null && ((IMixinChatScreen)screen).getSelections().contains(chatHudLine)) {
                         n = ticks - chatHudLine.getCreationTick();
                         if (n < 200 || bl) {
                             double g = bl ? 1.0D : method_19348(n);
