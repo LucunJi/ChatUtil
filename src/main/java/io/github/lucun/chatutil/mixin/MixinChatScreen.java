@@ -7,6 +7,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.CommandSuggestor;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
@@ -36,13 +37,9 @@ public abstract class MixinChatScreen extends Screen implements IMixinChatScreen
 
     @Shadow protected TextFieldWidget chatField;
 
-    protected MixinChatScreen(Text title) {
-        super(title);
-    }
+    @Shadow private CommandSuggestor commandSuggestor;
 
-    protected MixinChatScreen(Text title) {
-        super(title);
-    }
+    protected MixinChatScreen(Text title) { super(title); }
 
     @Inject(method = "mouseClicked", at = @At(
             value = "HEAD"

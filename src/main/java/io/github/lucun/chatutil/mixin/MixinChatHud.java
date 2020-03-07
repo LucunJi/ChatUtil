@@ -46,7 +46,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
 
     @Shadow private int scrolledLines;
 
-    @Shadow private static double method_19348(int i){return 0.0D;}
+    @Shadow private static double getMessageOpacityMultiplier(int age) {return 0.0D;}
 
     @Redirect(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At(
             value = "INVOKE", target = "Ljava/util/List;size()I", ordinal = 0))
@@ -137,7 +137,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
                     if (chatHudLine != null && ((IMixinChatScreen)screen).getSelections().contains(chatHudLine)) {
                         n = ticks - chatHudLine.getCreationTick();
                         if (n < 200 || bl) {
-                            double g = bl ? 1.0D : method_19348(n);
+                            double g = bl ? 1.0D : getMessageOpacityMultiplier(n);
                             o = (int)(255.0D * g * e);
                             p = (int)(255.0D * g * f);
                             if (o > 3) {
@@ -161,7 +161,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
         if (this.isChatFocused()) {
             double d = this.getChatScale();
             double e = x - 2.0D;
-            double f = (double)this.client.window.getScaledHeight() - y - 40.0D;
+            double f = (double)this.client.getWindow().getScaledHeight() - y - 40.0D;
             e = MathHelper.floor(e / d);
             f = MathHelper.floor(f / d);
             if (e >= 0.0D && f >= 0.0D) {

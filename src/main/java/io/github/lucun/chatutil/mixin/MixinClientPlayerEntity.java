@@ -1,6 +1,5 @@
 package io.github.lucun.chatutil.mixin;
 
-import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lucun.chatutil.MessageUtil;
 import io.github.lucun.chatutil.command.ClientCommands;
@@ -9,7 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
+import net.minecraft.server.network.packet.ChatMessageC2SPacket;
 import net.minecraft.text.Texts;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
