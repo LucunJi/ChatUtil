@@ -78,9 +78,12 @@ public abstract class MixinChatHud implements IMixinChatHud {
         ChatHudLine line = (ChatHudLine) element;
         if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).find()) {
             list.add(0, line);
+            messageBuffer.add(0, line);
+            if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
+        } else if (Settings.BUFFER_FILTERED) {
+            messageBuffer.add(0, line);
+            if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
         }
-        messageBuffer.add(0, line);
-        if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
     }
 
     @Override

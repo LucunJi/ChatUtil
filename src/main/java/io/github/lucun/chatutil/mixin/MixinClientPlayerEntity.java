@@ -1,6 +1,7 @@
 package io.github.lucun.chatutil.mixin;
 
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lucun.chatutil.MessageUtil;
 import io.github.lucun.chatutil.command.ClientCommands;
 import io.github.lucun.chatutil.command.ClientOnlyCommandSource;
 import net.minecraft.client.MinecraftClient;
@@ -39,7 +40,8 @@ public abstract class MixinClientPlayerEntity {
                 playerEntity.addChatMessage(Texts.toText(e.getRawMessage()).formatted(Formatting.RED), false);
             }
         } else {
-            clientPlayNetworkHandler.sendPacket(packet);
+            msg = MessageUtil.parseString(msg, (ClientPlayerEntity)(Object) this);
+            clientPlayNetworkHandler.sendPacket(new ChatMessageC2SPacket(msg));
         }
     }
 }
