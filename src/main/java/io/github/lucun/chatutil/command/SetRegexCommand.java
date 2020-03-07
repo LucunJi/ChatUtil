@@ -29,11 +29,17 @@ public class SetRegexCommand implements IClientCommand {
                                                         .executes(SetRegexCommand::setRegex))))
                                 .then(CommandManager.literal("use")
                                         .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions::regexName)
-                                                .executes(SetRegexCommand::applyRegexDefault)))
+                                                .executes(context -> {
+                                                    Settings.BUFFER_FILTERED = true;
+                                                    return applyRegex(context);
+                                                })))
                                 .then(CommandManager.literal("use")
                                         .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions::regexName)
                                                 .then(CommandManager.argument("buffer", BoolArgumentType.bool())
-                                                        .executes(SetRegexCommand::applyRegex))))
+                                                        .executes(context -> {
+                                                            Settings.BUFFER_FILTERED = BoolArgumentType.getBool(context, "buffer");
+                                                            return applyRegex(context);
+                                                        }))))
                         )
                         .then(CommandManager.literal("buffer")
                                 .then(CommandManager.argument("buffer", IntegerArgumentType.integer(20, 1024)).suggests((context, builder) -> CommandSource.suggestMatching(new String[]{"100"}, builder))
@@ -54,11 +60,6 @@ public class SetRegexCommand implements IClientCommand {
     }
 
     private static int applyRegex(CommandContext<ServerCommandSource> context) {
-        Settings.BUFFER_FILTERED = BoolArgumentType.getBool(context, "buffer");
-        return applyRegexDefault(context);
-    }
-
-    private static int applyRegexDefault(CommandContext<ServerCommandSource> context) {
         String name = StringArgumentType.getString(context, "name");
         if (!name.matches("^\\w+$")) {
             assert MinecraftClient.getInstance().player != null;
