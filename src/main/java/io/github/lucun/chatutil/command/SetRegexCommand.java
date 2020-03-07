@@ -1,6 +1,7 @@
 package io.github.lucun.chatutil.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,18 +24,19 @@ public class SetRegexCommand implements IClientCommand {
                 CommandManager.literal("chatutil")
                         .then(CommandManager.literal("filter")
                                 .then(CommandManager.literal("set")
-                                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions.REGEX_NAME)
-                                                .then(CommandManager.argument("regex", StringArgumentType.greedyString())
-                                                        .executes(SetRegexCommand::setRegex)
-                                                )))
+                                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions::regexName)
+                                                .then(CommandManager.argument("regex", StringArgumentType.greedyString()).suggests(CommandSuggestions::regexString)
+                                                        .executes(SetRegexCommand::setRegex))))
                                 .then(CommandManager.literal("use")
-                                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions.REGEX_NAME)
-                                                .executes(SetRegexCommand::applyRegex)))
-
+                                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions::regexName)
+                                                .executes(SetRegexCommand::applyRegexDefault)))
+                                .then(CommandManager.literal("use")
+                                        .then(CommandManager.argument("name", StringArgumentType.word()).suggests(CommandSuggestions::regexName)
+                                                .then(CommandManager.argument("buffer", BoolArgumentType.bool())
+                                                        .executes(SetRegexCommand::applyRegex))))
                         )
                         .then(CommandManager.literal("buffer")
-                                .then(CommandManager.argument("buffer", IntegerArgumentType.integer(20, 1024)).suggests((context, builder) ->
-                                        CommandSource.suggestMatching(new String[]{"100"}, builder))
+                                .then(CommandManager.argument("buffer", IntegerArgumentType.integer(20, 1024)).suggests((context, builder) -> CommandSource.suggestMatching(new String[]{"100"}, builder))
                                         .executes(SetRegexCommand::setBufferSize))
                         )
         );
@@ -52,6 +54,11 @@ public class SetRegexCommand implements IClientCommand {
     }
 
     private static int applyRegex(CommandContext<ServerCommandSource> context) {
+        Settings.BUFFER_FILTERED = BoolArgumentType.getBool(context, "buffer");
+        return applyRegexDefault(context);
+    }
+
+    private static int applyRegexDefault(CommandContext<ServerCommandSource> context) {
         String name = StringArgumentType.getString(context, "name");
         if (!name.matches("^\\w+$")) {
             assert MinecraftClient.getInstance().player != null;

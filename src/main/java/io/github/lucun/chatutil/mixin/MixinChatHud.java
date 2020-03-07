@@ -1,18 +1,15 @@
 package io.github.lucun.chatutil.mixin;
 
-import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
-import io.github.lucun.chatutil.mixininterface.IMixinChatScreen;
+import com.mojang.blaze3d.platform.GlStateManager;
 import io.github.lucun.chatutil.mixininterface.IMixinChatHud;
+import io.github.lucun.chatutil.mixininterface.IMixinChatScreen;
 import io.github.lucun.chatutil.setting.Settings;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.Texts;
-import net.minecraft.client.util.math.Matrix4f;
+import net.minecraft.client.options.ChatVisibility;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Final;
@@ -24,11 +21,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
+
+import static net.minecraft.client.gui.DrawableHelper.fill;
 
 @Mixin(ChatHud.class)
 public abstract class MixinChatHud implements IMixinChatHud {
@@ -41,8 +38,6 @@ public abstract class MixinChatHud implements IMixinChatHud {
 
     @Shadow @Final private MinecraftClient client;
 
-    @Shadow protected abstract boolean method_23677();
-
     @Shadow public abstract double getChatScale();
 
     @Shadow public abstract int getVisibleLineCount();
@@ -51,9 +46,7 @@ public abstract class MixinChatHud implements IMixinChatHud {
 
     @Shadow private int scrolledLines;
 
-    @Shadow private static double getMessageOpacityMultiplier(int age){return 0.0D;}
-
-    @Shadow public abstract void render(int ticks);
+    @Shadow private static double method_19348(int i){return 0.0D;}
 
     @Redirect(method = "addMessage(Lnet/minecraft/text/Text;IIZ)V", at = @At(
             value = "INVOKE", target = "Ljava/util/List;size()I", ordinal = 0))
@@ -85,9 +78,12 @@ public abstract class MixinChatHud implements IMixinChatHud {
         ChatHudLine line = (ChatHudLine) element;
         if (!Settings.getPattern().matcher(line.getText().asFormattedString().replaceAll("§\\w", "")).find()) {
             list.add(0, line);
+            messageBuffer.add(0, line);
+            if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
+        } else if (Settings.BUFFER_FILTERED) {
+            messageBuffer.add(0, line);
+            if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
         }
-        messageBuffer.add(0, line);
-        if (messageBuffer.size() > 1024) messageBuffer.remove(1024);
     }
 
     @Override
@@ -114,7 +110,9 @@ public abstract class MixinChatHud implements IMixinChatHud {
             value = "HEAD"
     ))
     private void onRender(int ticks, CallbackInfo ci) {
-        if (this.method_23677()) {
+        Screen screen = MinecraftClient.getInstance().currentScreen;
+        if (!(screen instanceof ChatScreen)) return;
+        if (this.client.options.chatVisibility != ChatVisibility.HIDDEN) {
             int i = this.getVisibleLineCount();
             int j = this.visibleMessages.size();
             if (j > 0) {
@@ -125,51 +123,45 @@ public abstract class MixinChatHud implements IMixinChatHud {
 
                 double d = this.getChatScale();
                 int k = MathHelper.ceil((double)this.getWidth() / d);
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(2.0F, 8.0F, 0.0F);
-                RenderSystem.scaled(d, d, 1.0D);
+                GlStateManager.pushMatrix();
+                GlStateManager.translatef(2.0F, 8.0F, 0.0F);
+                GlStateManager.scaled(d, d, 1.0D);
                 double e = this.client.options.chatOpacity * 0.8999999761581421D + 0.10000000149011612D;
                 double f = this.client.options.textBackgroundOpacity;
-                int l = 0;
-                Matrix4f matrix4f = Matrix4f.translate(0.0F, 0.0F, -100.0F);
 
                 int n;
                 int o;
                 int p;
                 for(int m = 0; m + this.scrolledLines < this.visibleMessages.size() && m < i; ++m) {
                     ChatHudLine chatHudLine = this.visibleMessages.get(m + this.scrolledLines);
-                    if (chatHudLine != null) {
+                    if (chatHudLine != null && ((IMixinChatScreen)screen).getSelections().contains(chatHudLine)) {
                         n = ticks - chatHudLine.getCreationTick();
                         if (n < 200 || bl) {
-                            double g = bl ? 1.0D : getMessageOpacityMultiplier(n);
+                            double g = bl ? 1.0D : method_19348(n);
                             o = (int)(255.0D * g * e);
                             p = (int)(255.0D * g * f);
-                            ++l;
                             if (o > 3) {
                                 int r = -m * 9;
-                                Screen screen = MinecraftClient.getInstance().currentScreen;
-                                if (screen instanceof ChatScreen && ((IMixinChatScreen) screen).getSelections().contains(chatHudLine)) {
-                                    DrawableHelper.fill(matrix4f, -2, r - 9, k + 4, r, p << 24);
-                                }
-                                RenderSystem.enableBlend();
-                                RenderSystem.disableAlphaTest();
-                                RenderSystem.disableBlend();
+                                fill(-2, r - 9, k + 4, r, p << 24);
+                                GlStateManager.enableBlend();
+                                GlStateManager.disableAlphaTest();
+                                GlStateManager.disableBlend();
                             }
                         }
                     }
                 }
 
-                RenderSystem.popMatrix();
+                GlStateManager.popMatrix();
             }
         }
     }
 
     @Override
     public int getMessageIndex(double x, double y) {
-        if (this.isChatFocused() && !this.client.options.hudHidden && this.method_23677()) {
+        if (this.isChatFocused()) {
             double d = this.getChatScale();
             double e = x - 2.0D;
-            double f = (double)this.client.getWindow().getScaledHeight() - y - 40.0D;
+            double f = (double)this.client.window.getScaledHeight() - y - 40.0D;
             e = MathHelper.floor(e / d);
             f = MathHelper.floor(f / d);
             if (e >= 0.0D && f >= 0.0D) {

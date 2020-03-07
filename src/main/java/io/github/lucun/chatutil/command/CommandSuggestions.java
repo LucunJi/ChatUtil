@@ -1,28 +1,23 @@
 
 package io.github.lucun.chatutil.command;
 
-import com.google.common.collect.Maps;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lucun.chatutil.setting.Settings;
-import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.Identifier;
-import java.util.Map;
+
+import java.util.concurrent.CompletableFuture;
 
 public class CommandSuggestions {
-    private static Map<String, SuggestionProvider<? extends CommandSource>> providerMap = Maps.newHashMap();
 
-    public static final SuggestionProvider<ServerCommandSource> REGEX_NAME;
-    static {
-        REGEX_NAME = create("regex_name", (context, builder) ->
-                CommandSource.suggestMatching(Settings.PATTERN_MAP.keySet(), builder));
+    public static CompletableFuture<Suggestions> regexName(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestionsBuilder) {
+        return CommandSource.suggestMatching(Settings.PATTERN_MAP.keySet(), suggestionsBuilder);
     }
 
-    public static SuggestionProvider<ServerCommandSource> create(String name, SuggestionProvider<CommandSource> provider) {
-        SuggestionProvider<? extends CommandSource> provider1 = new SuggestionProviders.LocalProvider(
-                new Identifier("chatutil:"+name), provider);
-        providerMap.put(name, provider1);
-        return (SuggestionProvider<ServerCommandSource>) provider1;
+    public static CompletableFuture<Suggestions> regexString(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestionsBuilder) {
+        return CommandSource.suggestMatching(new String[]{Settings.PATTERN_MAP.get(StringArgumentType.getString(context, "name")).pattern()}, suggestionsBuilder);
     }
 }
