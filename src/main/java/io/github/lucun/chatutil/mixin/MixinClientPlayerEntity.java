@@ -1,5 +1,6 @@
 package io.github.lucun.chatutil.mixin;
 
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lucun.chatutil.MessageUtil;
 import io.github.lucun.chatutil.command.ClientCommands;

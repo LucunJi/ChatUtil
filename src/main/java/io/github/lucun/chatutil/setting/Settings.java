@@ -16,7 +16,6 @@ public class Settings {
     public static Map <String, Pattern> PATTERN_MAP = Maps.newHashMap();
     public static String CURRENT_PATTERN = "allow_all";
     private static Pattern ALLOW_ALL = Pattern.compile("^$");
-
     private static final String FILE_PATH = "./config/chatutil.json";
     private static final File CONFIG_DIR = new File("./config");
 

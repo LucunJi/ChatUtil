@@ -1,3 +1,4 @@
+
 package io.github.lucun.chatutil.command;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
