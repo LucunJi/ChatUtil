@@ -8,23 +8,17 @@ Now downloads are available in curseforge: https://www.curseforge.com/minecraft/
  
 Hold *Shift* and *click/drag*, you can select multiple lines.
 
-Then press *Ctrl+Shift+C* to put these lines into your
- chipboard.
- 
-Also, you can expand the buffer size of your chat box.
+Then press *Ctrl+Shift+C* to put these lines into your chipboard.
 
-Use command `/chat buffer <20-1024>` to set.
+Use command `/chat buffer <20-1024>` to set the buffer size of your chat box.
 
 Using regex can help you filter your messages.
 
-Use `/chat filter set <name> <regex>` to define a expression
- with a name,
-then use `/chat filter use <name>` to implement your expression.
+Use `/chat filter set <name> <regex>` to define a expression with a name, then use `/chat filter use <name> [buffer_filtered=true]` to implement your expression. `buffer_filtered` option sets if game stores the filtered messages in buffer(default true).
 
-Feel free to use this mod anywhere, cuz it's released under license [CC0-1.0](./LICENSE) !
+In normal chats, use `\{pos}` to post your position quickly.
 
-Oh, is fine if you did't see some of the aforementioned function or there might be some bugs.
+Feel free to use this mod anywhere, cuz it's released under license [CC0-1.0](./LICENSE) .
 
-This mod is still under development. Please be patient and fell free to report issues ;)
-
+Fell free to report issues ;)
 Thanks earthcomputer for codes of client side commands
