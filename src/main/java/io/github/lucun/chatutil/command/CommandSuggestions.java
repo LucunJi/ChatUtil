@@ -9,7 +9,9 @@ import io.github.lucun.chatutil.setting.Settings;
 import net.minecraft.server.command.CommandSource;
 import net.minecraft.server.command.ServerCommandSource;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 public class CommandSuggestions {
 
@@ -18,6 +20,11 @@ public class CommandSuggestions {
     }
 
     public static CompletableFuture<Suggestions> regexString(CommandContext<ServerCommandSource> context, SuggestionsBuilder suggestionsBuilder) {
-        return CommandSource.suggestMatching(new String[]{Settings.PATTERN_MAP.get(StringArgumentType.getString(context, "name")).pattern()}, suggestionsBuilder);
+        Pattern pattern = Settings.PATTERN_MAP.get(StringArgumentType.getString(context, "name"));
+        if (pattern == null) {
+            return CommandSource.suggestMatching(new ArrayList<>(), suggestionsBuilder);
+        } else {
+            return CommandSource.suggestMatching(new String[]{pattern.pattern()},suggestionsBuilder);
+        }
     }
 }
