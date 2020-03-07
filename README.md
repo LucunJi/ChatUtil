@@ -21,5 +21,3 @@ In normal chats, use `\{pos}` to post your position quickly.
 Feel free to use this mod anywhere, cuz it's released under license [CC0-1.0](./LICENSE) .
 
 Fell free to report issues ;)
-
-Thanks earthcomputer for codes of client side commands
